@@ -2,8 +2,10 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { List, Map } from 'immutable';
 import ImmutablePropTypes from 'react-immutable-proptypes';
+import { isString } from 'lodash';
 import Frame from 'react-frame-component';
-import { resolveWidget, getPreviewTemplate, getPreviewStyles } from 'Lib/registry';
+import { resolveWidget, getPreviewStyles } from 'Lib/registry';
+import { createTemplateCompiler } from 'Extensions/template-compilers';
 import { ErrorBoundary } from 'UI';
 import { selectTemplateName, selectInferedField } from 'Reducers/collections';
 import { INFERABLE_FIELDS } from 'Constants/fieldInference';
@@ -12,6 +14,21 @@ import PreviewHOC from './PreviewHOC';
 import EditorPreview from './EditorPreview';
 
 export default class PreviewPane extends React.Component {
+  constructor(props) {
+    super(props);
+    const { collection, entry, fields, fieldsMetaData } = props;
+    const templateData = {
+      collection,
+      entry,
+      fields,
+      fieldsMetaData,
+      widgetFor: this.widgetFor,
+      widgetsFor: this.widgetsFor,
+    };
+
+    const templateName = selectTemplateName(collection, entry.get('slug'));
+    this.compileTemplate = createTemplateCompiler(templateName);
+  }
 
   getWidget = (field, value, props) => {
     const { fieldsMetaData, getAsset, entry } = props;
@@ -119,23 +136,25 @@ export default class PreviewPane extends React.Component {
   };
 
   render() {
-    const { entry, collection } = this.props;
+    const { entry, collection, fieldsMetaData, getAsset, fields } = this.props;
 
     if (!entry || !entry.get('data')) {
       return null;
     }
 
-    const previewComponent =
-      getPreviewTemplate(selectTemplateName(collection, entry.get('slug'))) ||
-      EditorPreview;
-
     this.inferFields();
 
-    const previewProps = {
-      ...this.props,
+    const templateData = {
+      collection,
+      entry,
+      fields,
+      fieldsMetaData,
+      getAsset,
       widgetFor: this.widgetFor,
       widgetsFor: this.widgetsFor,
     };
+
+    const previewComponent = this.compileTemplate(templateData);
 
     const styleEls = getPreviewStyles()
       .map((style, i) => {
@@ -160,7 +179,7 @@ export default class PreviewPane extends React.Component {
     return (
       <ErrorBoundary>
         <Frame className="nc-previewPane-frame" head={styleEls} initialContent={initialContent}>
-          <EditorPreviewContent {...{ previewComponent, previewProps }}/>
+          <EditorPreviewContent previewComponent={previewComponent}/>
         </Frame>
       </ErrorBoundary>
     );

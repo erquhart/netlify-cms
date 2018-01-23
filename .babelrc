@@ -22,6 +22,7 @@
         "Actions": "./src/actions/",
         "Backends": "./src/backends/",
         "Constants": "./src/constants/",
+        "Extensions": "./src/extensions/",
         "Formats": "./src/formats/",
         "Integrations": "./src/integrations/",
         "Lib": "./src/lib/",

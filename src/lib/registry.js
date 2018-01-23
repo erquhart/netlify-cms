@@ -6,7 +6,8 @@ import { newEditorPlugin } from 'EditorWidgets/Markdown/MarkdownControl/plugins'
  */
 const registry = {
   backends: { },
-  templates: {},
+  previewTemplates: {},
+  previewTemplateCompilers: {},
   previewStyles: [],
   widgets: {},
   editorComponents: Map(),
@@ -18,6 +19,8 @@ export default {
   getPreviewStyles,
   registerPreviewTemplate,
   getPreviewTemplate,
+  registerPreviewTemplateCompiler,
+  getTemplateCompiler,
   registerWidget,
   getWidget,
   resolveWidget,
@@ -47,13 +50,51 @@ export function getPreviewStyles() {
 /**
  * Preview Templates
  */
-export function registerPreviewTemplate(name, component) {
-  registry.templates[name] = component;
+export function registerPreviewTemplate(name, template, compilerName, config) {
+  registry.templates[name] = { template, compilerName, config };
 };
 export function getPreviewTemplate(name) {
   return registry.templates[name];
 };
 
+
+/**
+ * Preview Template Compilers
+ */
+export function registerPreviewTemplateCompiler(name, compiler) {
+  if (!name || !compiler) {
+    console.error("registerPreviewTemplateCompiler parameters invalid. example: CMS.registerPreviewTemplateCompiler('myCompiler', compiler)");
+  } else if (registry.previewTemplateCompilers[name]) {
+      console.error(`Preview template compiler [${ name }] already registered. Please choose a different name.`);
+  }
+  registry.previewTemplateCompilers[name] = compiler;
+};
+
+export function getPreviewTemplateCompiler(name) {
+  const compilerNames = Object.keys(registry.previewTemplateCompilers);
+
+  /**
+   * If the named compiler has not been registered, log an error.
+   */
+  if (name && !registry.previewTemplateCompilers[name]) {
+    console.error(`
+Preview template compiler [${name}] not registered.
+
+Registered compilers include:
+${compilerNames.map(n => `${n}\n`)}
+    `);
+  }
+
+  /**
+   * If no name arg is passed and only one compiler is registered, return it by
+   * default.
+   */
+  else if (!name && Object.keys(registry.previewTemplateCompilers) === 1) {
+    return Object.values(registry.previewTemplateCompilers)[0];
+  }
+
+  return registry.previewTemplateCompilers[name];
+};
 
 /**
  * Editor Widgets

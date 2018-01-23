@@ -92,6 +92,7 @@
 
   <script src='/cms.js'></script>
   <script>
+    // Original React template
     var PostPreview = createClass({
       render: function() {
         var entry = this.props.entry;
@@ -110,6 +111,24 @@
       }
     });
 
+    // Handlebars equivalent
+    var postPreviewTemplate = `
+      <div>
+        <div class="cover">
+          <h1>{{ title }}</h1>
+          {{#image}}
+            <img src="{{ getAsset image }}"/>
+          {{/image}}
+        </div>
+        <p>
+          <small>Written {{ date }}</small>
+        </p>
+        <div class="text">
+          {{ widgetFor "body" }}
+        </div>
+      </div>
+    `;
+
     var GeneralPreview = createClass({
       render: function() {
         var entry = this.props.entry;
@@ -121,7 +140,7 @@
           h('h1', {}, title),
           h('dl', {},
             h('dt', {}, 'Posts on Frontpage'),
-            h('dd', {}, this.props.widgetsFor('posts').getIn(['widgets', 'front_limit']) || 0),
+            h('dd', {}, this.props.widgetFor(['posts', 'front_limit']) || 0),
 
             h('dt', {}, 'Default Author'),
             h('dd', {}, this.props.widgetsFor('posts').getIn(['data', 'author']) || 'None'),
@@ -132,6 +151,27 @@
         );
       }
     });
+
+    // Inactive concept, requires widgetFor path array support
+    var generalPreviewTemplate = `
+      <div>
+        <h1>{{ site_title }}</h1>
+        <dl>
+          {{#posts}}
+            <dt>Posts on Frontpage</dt>
+            <dd>{{widgetFor "front_limit"}}</dd>
+
+            <dt>Default Author</dt>
+            <dd>{{author}}</dd>
+
+            <dt>Default Thumbnail</dt>
+            <dd>
+              {{#thumb}}<img src="{{getAsset thumb}}"/>{{/thumb}}
+          {{/posts}}
+        </dl>
+      </div>
+    `;
+
 
     var AuthorsPreview = createClass({
       render: function() {
@@ -168,7 +208,7 @@
       }
     });
 
-    CMS.registerPreviewTemplate("posts", PostPreview);
+    CMS.registerPreviewTemplate("posts", postPreviewTemplate);
     CMS.registerPreviewTemplate("general", GeneralPreview);
     CMS.registerPreviewTemplate("authors", AuthorsPreview);
     CMS.registerPreviewStyle("/example.css");

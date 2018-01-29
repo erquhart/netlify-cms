@@ -1,3 +1,5 @@
+import { goTemplateParser } from 'netlify-cms-template-parser-go';
+
 export default function compile(template, data) {
-  return window.goTemplateParser.compile(data, template);
+  return goTemplateParser.compile(data, template);
 }

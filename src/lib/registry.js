@@ -20,7 +20,7 @@ export default {
   registerPreviewTemplate,
   getPreviewTemplate,
   registerPreviewTemplateCompiler,
-  getTemplateCompiler,
+  getPreviewTemplateCompiler,
   registerWidget,
   getWidget,
   resolveWidget,
@@ -50,11 +50,11 @@ export function getPreviewStyles() {
 /**
  * Preview Templates
  */
-export function registerPreviewTemplate(name, template, compilerName, config) {
-  registry.templates[name] = { template, compilerName, config };
+export function registerPreviewTemplate(name, template, compilerConfig, compilerName) {
+  registry.previewTemplates[name] = { template, compilerConfig, compilerName };
 };
 export function getPreviewTemplate(name) {
-  return registry.templates[name];
+  return registry.previewTemplates[name];
 };
 
 
@@ -81,7 +81,8 @@ export function getPreviewTemplateCompiler(name) {
 Preview template compiler [${name}] not registered.
 
 Registered compilers include:
-${compilerNames.map(n => `${n}\n`)}
+
+${compilerNames.join('\n')}
     `);
   }
 

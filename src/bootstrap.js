@@ -9,7 +9,6 @@ import { mergeConfig } from 'Actions/config';
 import { setStore } from 'ValueObjects/AssetProxy';
 import { ErrorBoundary } from 'UI'
 import App from 'App/App';
-import 'Extensions';
 import 'EditorWidgets';
 import 'MarkdownPlugins';
 import './index.css';

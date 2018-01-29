@@ -1,18 +1,19 @@
+import React from 'react';
 import { isString } from 'lodash';
 import {
   registerPreviewTemplateCompiler,
   getPreviewTemplateCompiler,
   getPreviewTemplate
 } from 'Lib/registry';
-import templateCompilerHandlebars from 'Extensions/template-compiler-handlebars';
-import templateCompilerGo from 'Extensions/template-compiler-go';
+import templateCompilerHandlebars from 'Extensions/template-compilers/template-compiler-handlebars';
+import templateCompilerGo from 'Extensions/template-compilers/template-compiler-go';
 import HtmlToReactParser from 'html-to-react';
 
 const htmlToReactParser = new HtmlToReactParser.Parser;
 const DEFAULT_COMPILER_NAME = 'handlebars';
 
-registerTemplateCompiler('handlebars', templateCompilerHandlebars);
-registerTemplateCompiler('go', templateCompilerGo);
+registerPreviewTemplateCompiler('handlebars', templateCompilerHandlebars);
+registerPreviewTemplateCompiler('go', templateCompilerGo);
 
 export const createTemplateCompiler = name => {
   const {
@@ -34,12 +35,12 @@ export const createTemplateCompiler = name => {
    * 3. Default compiler if the raw template is a string.
    * 4. React.createElement if the raw template is not a string.
    *
-   * Note that 1 & 2 are handled by the initial `getTemplateCompiler` call,
-   * which will return the named compiler, or else the only registered compiler,
-   * or else `undefined`.
+   * Note that 1 & 2 are handled by the initial `getPreviewTemplateCompiler`
+   * call, which will return the named compiler, or else the only registered
+   * compiler, or else `undefined`.
    */
-  const compilerFn = getTemplateCompiler(compilerName)
-    || (isString(template) && getTemplateCompiler(DEFAULT_COMPILER_NAME))
+  const compilerFn = getPreviewTemplateCompiler(compilerName)
+    || (isString(template) && getPreviewTemplateCompiler(DEFAULT_COMPILER_NAME))
     || React.createElement;
 
   /**

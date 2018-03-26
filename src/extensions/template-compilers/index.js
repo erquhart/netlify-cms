@@ -22,11 +22,6 @@ export const createTemplateCompiler = name => {
     compilerName,
   } = getPreviewTemplate(name);
 
-  const {
-    transformTemplate = t => t,
-    transformData = d => d,
-  } = compilerConfig;
-
   /**
    * Determining which compiler to use, in order of precedence:
    *
@@ -43,15 +38,8 @@ export const createTemplateCompiler = name => {
     || (isString(template) && getPreviewTemplateCompiler(DEFAULT_COMPILER_NAME))
     || React.createElement;
 
-  /**
-   * Only run the template transformation function at compiler creation, as
-   * neither the function nor the template will change.
-   */
-  const transformedTemplate = transformTemplate(template);
-
   const compile = data => {
-    const transformedData = transformData(data);
-    const compiledTemplate = compilerFn(transformedTemplate, transformedData);
+    const compiledTemplate = compilerFn(name, template, data, compilerConfig);
 
     /**
      * If a the compiler returns a string, assume HTML and parse into a React

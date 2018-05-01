@@ -1,17 +1,18 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import c from 'classnames';
-import { Link } from 'react-router-dom';
 import { Icon } from 'UI';
-import { VIEW_STYLE_LIST, VIEW_STYLE_GRID } from 'Constants/collectionViews';
 
 const CollectionTop = ({
   collectionLabel,
   collectionLabelSingular,
   collectionDescription,
-  viewStyle,
-  onChangeViewStyle,
+  isListView,
+  isGridView,
+  toListView,
+  toGridView,
   newEntryUrl,
+  Link,
 }) => {
   return (
     <div className="nc-collectionPage-top">
@@ -36,17 +37,17 @@ const CollectionTop = ({
         <span className="nc-collectionPage-top-viewControls-text">View as:</span>
         <button
           className={c('nc-collectionPage-top-viewControls-button', {
-            'nc-collectionPage-top-viewControls-buttonActive': viewStyle === VIEW_STYLE_LIST,
+            'nc-collectionPage-top-viewControls-buttonActive': isListView(),
           })}
-          onClick={() => onChangeViewStyle(VIEW_STYLE_LIST)}
+          onClick={() => toListView()}
         >
           <Icon type="list"/>
         </button>
         <button
           className={c('nc-collectionPage-top-viewControls-button', {
-            'nc-collectionPage-top-viewControls-buttonActive': viewStyle === VIEW_STYLE_GRID,
+            'nc-collectionPage-top-viewControls-buttonActive': isGridView(),
           })}
-          onClick={() => onChangeViewStyle(VIEW_STYLE_GRID)}
+          onClick={() => toGridView()}
         >
           <Icon type="grid"/>
         </button>
@@ -58,7 +59,12 @@ const CollectionTop = ({
 CollectionTop.propTypes = {
   collectionLabel: PropTypes.string.isRequired,
   collectionDescription: PropTypes.string,
-  newEntryUrl: PropTypes.string
+  newEntryUrl: PropTypes.string,
+  isListView: PropTypes.func.isRequired,
+  isGridView: PropTypes.func.isRequired,
+  toListView: PropTypes.func.isRequired,
+  toGridView: PropTypes.func.isRequired,
+  Link: PropTypes.func.isRequired,
 };
 
 export default CollectionTop;

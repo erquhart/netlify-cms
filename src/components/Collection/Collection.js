@@ -1,12 +1,13 @@
 import React from 'react';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import { connect } from 'react-redux';
+import { Link, NavLink } from 'react-router-dom';
 import { getNewEntryUrl } from 'Lib/urlHelper';
-import Sidebar from './Sidebar';
-import CollectionTop from './CollectionTop';
+import { searchCollections } from 'Actions/collections';
 import EntriesCollection from './Entries/EntriesCollection';
 import EntriesSearch from './Entries/EntriesSearch';
 import { VIEW_STYLE_LIST, VIEW_STYLE_GRID } from 'Constants/collectionViews';
+import { ThemeCollectionTop, ThemeSidebar } from 'Theme';
 
 class Collection extends React.Component {
   static propTypes = {
@@ -38,24 +39,20 @@ class Collection extends React.Component {
     const { collection, collections, collectionName, isSearchResults, searchTerm } = this.props;
     const newEntryUrl = collection.get('create') ? getNewEntryUrl(collectionName) : '';
     return (
-      <div className="nc-collectionPage-container">
-        <Sidebar collections={collections} searchTerm={searchTerm}/>
-        <div className="nc-collectionPage-main">
-          {
-            isSearchResults
-              ? null
-              : <CollectionTop
-                  collectionLabel={collection.get('label')}
-                  collectionLabelSingular={collection.get('label_singular')}
-                  collectionDescription={collection.get('description')}
-                  newEntryUrl={newEntryUrl}
-                  viewStyle={this.state.viewStyle}
-                  onChangeViewStyle={this.handleChangeViewStyle}
-                />
-          }
-          { isSearchResults ? this.renderEntriesSearch() : this.renderEntriesCollection() }
-        </div>
-      </div>
+      <ThemeCollection
+        collection={collection}
+        collection={collections}
+        isSearchResults={isSearchResults}
+        searchTerm={searchTerm}
+        searchCollections={searchCollections}
+        Link={Link}
+        NavLink={NavLink}
+        newEntryUrl={newEntryUrl}
+        isListView={() => this.state.viewStyle === VIEW_STYLE_LIST}
+        isGridView={() => this.state.viewStyle === VIEW_STYLE_GRID}
+        toListView={() => this.handleChangeViewStyle(VIEW_STYLE_LIST)}
+        toGridView={() => this.handleChangeViewStyle(VIEW_STYLE_GRID)}
+      />
     );
   }
 }

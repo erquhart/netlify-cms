@@ -6,14 +6,12 @@ import {
   getPreviewTemplate
 } from 'Lib/registry';
 import templateCompilerHandlebars from 'Extensions/template-compilers/template-compiler-handlebars';
-import templateCompilerGo from 'Extensions/template-compilers/template-compiler-go';
 import HtmlToReactParser from 'html-to-react';
 
 const htmlToReactParser = new HtmlToReactParser.Parser;
 const DEFAULT_COMPILER_NAME = 'handlebars';
 
 registerPreviewTemplateCompiler('handlebars', templateCompilerHandlebars);
-registerPreviewTemplateCompiler('go', templateCompilerGo);
 
 export const createTemplateCompiler = name => {
   const {
@@ -38,8 +36,8 @@ export const createTemplateCompiler = name => {
     || (isString(template) && getPreviewTemplateCompiler(DEFAULT_COMPILER_NAME))
     || React.createElement;
 
-  const compile = data => {
-    const compiledTemplate = compilerFn(name, template, data, compilerConfig);
+  const compile = context => {
+    const compiledTemplate = compilerFn(name, template, context, compilerConfig);
 
     /**
      * If a the compiler returns a string, assume HTML and parse into a React

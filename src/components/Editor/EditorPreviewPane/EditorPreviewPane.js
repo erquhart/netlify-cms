@@ -15,6 +15,13 @@ import PreviewHOC from './PreviewHOC';
 import EditorPreview from './EditorPreview';
 
 export default class PreviewPane extends React.Component {
+  constructor(props) {
+    super(props);
+    const { collection, entry } = this.props;
+    const templateName = selectTemplateName(collection, entry.get('slug'));
+    this.compileTemplate = createTemplateCompiler(templateName);
+  }
+
   inferedFields = {};
 
   inferFields() {
@@ -30,6 +37,7 @@ export default class PreviewPane extends React.Component {
 
   getFieldPreview = field => {
     const { entry, fieldsMetaData, getAsset } = this.props;
+    console.log(entry.get('fields').toJS());
     const value = entry.getIn(['data', field.get('name')]);
     const widget = resolveWidget(field.get('widget'));
     const data = widget.getData({ value, getAsset });
@@ -56,14 +64,12 @@ export default class PreviewPane extends React.Component {
 
     this.inferFields();
 
-    const templateData = {
-      entry: {
-        fields: fields.toMap().mapKeys((k, v) => v.get('name')).map(this.getFieldPreview).toJS(),
-        collection: entry.get('collection'),
-      },
+    const templateContext = {
+      entry: fields.toMap().mapKeys((k, v) => v.get('name')).map(this.getFieldPreview).toJS(),
+      __collection: entry.get('collection'),
     };
 
-    const previewComponent = this.compileTemplate(templateData);
+    const previewComponent = this.compileTemplate(templateContext);
 
     const styleEls = getPreviewStyles()
       .map((style, i) => {

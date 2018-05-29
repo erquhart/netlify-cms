@@ -100,11 +100,11 @@ ${compilerNames.join('\n')}
 /**
  * Editor Widgets
  */
-export function registerWidget(name, control, preview) {
+export function registerWidget(name, control, preview, getData = () => ({})) {
   // A registered widget control can be reused by a new widget, allowing
   // multiple copies with different previews.
   const newControl = typeof control === 'string' ? registry.widgets[control].control : control;
-  registry.widgets[name] = { control: newControl, preview };
+  registry.widgets[name] = { control: newControl, preview, getData };
 };
 export function getWidget(name) {
   return registry.widgets[name];

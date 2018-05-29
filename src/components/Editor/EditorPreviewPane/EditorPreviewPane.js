@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import ReactDOMServer from 'react-dom/server';
 import { List, Map } from 'immutable';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import { isString } from 'lodash';
@@ -14,43 +15,6 @@ import PreviewHOC from './PreviewHOC';
 import EditorPreview from './EditorPreview';
 
 export default class PreviewPane extends React.Component {
-  constructor(props) {
-    super(props);
-    const { collection, entry, fields, fieldsMetaData } = props;
-    const templateData = {
-      collection,
-      entry,
-      fields,
-      fieldsMetaData,
-      widgetFor: this.widgetFor,
-      widgetsFor: this.widgetsFor,
-    };
-
-    const templateName = selectTemplateName(collection, entry.get('slug'));
-    this.compileTemplate = createTemplateCompiler(templateName);
-  }
-
-  getWidget = (field, value, props) => {
-    const { fieldsMetaData, getAsset, entry } = props;
-    const widget = resolveWidget(field.get('widget'));
-
-    /**
-     * Use an HOC to provide conditional updates for all previews.
-     */
-    return !widget.preview ? null : (
-      <PreviewHOC
-        previewComponent={widget.preview}
-        key={field.get('name')}
-        field={field}
-        getAsset={getAsset}
-        value={value && Map.isMap(value) ? value.get(field.get('name')) : value}
-        metadata={fieldsMetaData && fieldsMetaData.get(field.get('name'))}
-        entry={entry}
-        fieldsMetaData={fieldsMetaData}
-      />
-    );
-  };
-
   inferedFields = {};
 
   inferFields() {
@@ -64,79 +28,27 @@ export default class PreviewPane extends React.Component {
     if (authorField) this.inferedFields[authorField] = INFERABLE_FIELDS.author;
   }
 
-  /**
-   * Returns the widget component for a named field, and makes recursive calls
-   * to retrieve components for nested and deeply nested fields, which occur in
-   * object and list type fields. Used internally to retrieve widgets, and also
-   * exposed for use in custom preview templates.
-   */
-  widgetFor = (name, fields = this.props.fields, values = this.props.entry.get('data')) => {
-    // We retrieve the field by name so that this function can also be used in
-    // custom preview templates, where the field object can't be passed in.
-    let field = fields && fields.find(f => f.get('name') === name);
-    let value = values && values.get(field.get('name'));
-    let nestedFields = field.get('fields');
-
-    if (nestedFields) {
-      field = field.set('fields', this.getNestedWidgets(nestedFields, value));
-    }
-
-    const labelledWidgets = ['string', 'text', 'number'];
-    if (Object.keys(this.inferedFields).indexOf(name) !== -1) {
-      value = this.inferedFields[name].defaultPreview(value);
-    } else if (value && labelledWidgets.indexOf(field.get('widget')) !== -1 && value.toString().length < 50) {
-      value = <div><strong>{field.get('label')}:</strong> {value}</div>;
-    }
-
-    return value ? this.getWidget(field, value, this.props) : null;
-  };
-
-  /**
-   * Retrieves widgets for nested fields (children of object/list fields)
-   */
-  getNestedWidgets = (fields, values) => {
-    // Fields nested within a list field will be paired with a List of value Maps.
-    if (List.isList(values)) {
-      return values.map(value => this.widgetsForNestedFields(fields, value));
-    }
-    // Fields nested within an object field will be paired with a single Map of values.
-    return this.widgetsForNestedFields(fields, values);
-  };
-
-  /**
-   * Use widgetFor as a mapping function for recursive widget retrieval
-   */
-  widgetsForNestedFields = (fields, values) => {
-    return fields.map(field => this.widgetFor(field.get('name'), fields, values));
-  };
-
-  /**
-   * This function exists entirely to expose nested widgets for object and list
-   * fields to custom preview templates.
-   *
-   * TODO: see if widgetFor can now provide this functionality for preview templates
-   */
-  widgetsFor = (name) => {
-    const { fields, entry } = this.props;
-    const field = fields.find(f => f.get('name') === name);
-    const nestedFields = field && field.get('fields');
+  getFieldPreview = field => {
+    const { entry, fieldsMetaData, getAsset } = this.props;
     const value = entry.getIn(['data', field.get('name')]);
+    const widget = resolveWidget(field.get('widget'));
+    const data = widget.getData({ value, getAsset });
 
-    if (List.isList(value)) {
-      return value.map((val, index) => {
-        const widgets = nestedFields && Map(nestedFields.map((f, i) => [f.get('name'), <div key={i}>{this.getWidget(f, val, this.props)}</div>]));
-        return Map({ data: val, widgets });
-      });
+    return {
+      value,
+      get data () {
+        return data;
+      },
+      get preview () {
+        return ReactDOMServer.renderToStaticMarkup(
+          <PreviewHOC previewComponent={widget.preview} value={value} data={data}/>
+        );
+      },
     };
-
-    return Map({
-      data: value,
-      widgets: nestedFields && Map(nestedFields.map(f => [f.get('name'), this.getWidget(f, value, this.props)])),
-    });
   };
 
   render() {
-    const { entry, collection, fieldsMetaData, getAsset, fields } = this.props;
+    const { entry, collection, fields } = this.props;
 
     if (!entry || !entry.get('data')) {
       return null;
@@ -145,13 +57,10 @@ export default class PreviewPane extends React.Component {
     this.inferFields();
 
     const templateData = {
-      collection,
-      entry,
-      fields,
-      fieldsMetaData,
-      getAsset,
-      widgetFor: this.widgetFor,
-      widgetsFor: this.widgetsFor,
+      entry: {
+        fields: fields.toMap().mapKeys((k, v) => v.get('name')).map(this.getFieldPreview).toJS(),
+        collection: entry.get('collection'),
+      },
     };
 
     const previewComponent = this.compileTemplate(templateData);

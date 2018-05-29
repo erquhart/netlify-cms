@@ -33,7 +33,7 @@ registerWidget('text', TextControl, TextPreview);
 registerWidget('number', NumberControl, NumberPreview);
 registerWidget('list', ListControl, ListPreview);
 registerWidget('markdown', MarkdownControl, MarkdownPreview);
-registerWidget('image', ImageControl, ImagePreview);
+registerWidget('image', ImageControl, ImagePreview, ({ value, getAsset }) => ({ src: getAsset(value) }));
 registerWidget('file', FileControl, FilePreview);
 registerWidget('date', DateControl, DatePreview);
 registerWidget('datetime', DateTimeControl, DateTimePreview);

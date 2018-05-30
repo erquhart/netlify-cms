@@ -37,7 +37,8 @@ export default class PreviewPane extends React.Component {
 
   getFieldPreview = (fieldConfig, path)  => {
     const { entry, fieldsMetaData, getAsset } = this.props;
-    const value = entry.getIn(['data', path ? ...path : fieldConfig.get('name')]);
+    const dataPath = path ? ['data', ...path] : ['data', fieldConfig.get('name')];
+    const value = entry.getIn(dataPath);
     const widget = resolveWidget(fieldConfig.get('widget'));
     const data = widget.getData({ value, getAsset });
 
@@ -47,14 +48,36 @@ export default class PreviewPane extends React.Component {
       );
     }
 
+    const childFieldConfigs = fieldConfig.get('fields');
+
+    if (childFieldConfigs) {
+      return {
+        ...this.getFieldPreviews(childFieldConfigs).toJS(),
+        __value: value,
+        get __data() {
+          return data;
+        },
+        get __preview() {
+          return preview();
+        },
+      };
+    }
+
     return {
       value,
-      get data () {
+      get data() {
         return data;
       },
-      get preview,
+      get preview() {
+        return preview()
+      },
     };
   };
+
+  getFieldPreviews = fieldConfigs => fieldConfigs
+    .toMap()
+    .mapKeys((_, fieldConfig) => fieldConfig.get('name'))
+    .map(this.getFieldPreview);
 
   render() {
     const { entry, collection, fields } = this.props;
@@ -66,9 +89,12 @@ export default class PreviewPane extends React.Component {
     this.inferFields();
 
     const templateContext = {
-      entry: fields.toMap().mapKeys((k, v) => v.get('name')).map(this.getFieldPreview).toJS(),
+      entry: this.getFieldPreviews(fields).toJS(),
       __collection: entry.get('collection'),
     };
+
+    console.log(templateContext.entry);
+    console.log(fields.toJS());
 
     const previewComponent = this.compileTemplate(templateContext);
 

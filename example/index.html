@@ -163,15 +163,15 @@
         <dl>
           {{#entry.posts}}
             <dt>Posts on Frontpage</dt>
-            {{!<dd>{{{front_limit.preview}}}</dd>}}
+            {{!-- <dd>{{{front_limit.preview}}}</dd> --}}
 
             <dt>Default Author</dt>
-            <dd>{{author.value}}</dd>
+            <dd>{{entry.author.value}}</dd>
 
             <dt>Default Thumbnail</dt>
             <dd>
             {{#thumb}}<img src="{{thumb.data.src}}"/>{{/thumb}}
-          {{/posts}}
+          {{/entry.posts}}
         </dl>
       </div>
     `;

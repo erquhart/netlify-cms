@@ -16,4 +16,5 @@ export default function ImagePreview({ value, data }) {
 ImagePreview.propTypes = {
   getAsset: PropTypes.func.isRequired,
   value: PropTypes.node,
+  data: PropTypes.object,
 };

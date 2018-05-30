@@ -1,10 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import ImmutablePropTypes from 'react-immutable-proptypes';
-
-function isVisible(field) {
-  return field.get('widget') !== 'hidden';
-}
+import { map, filter } from 'lodash';
 
 const style = {
   fontFamily: 'Roboto, "Helvetica Neue", HelveticaNeue, Helvetica, Arial, sans-serif',
@@ -16,22 +13,18 @@ const style = {
  */
 export default class Preview extends React.Component {
   render() {
-    const { collection, fields, widgetFor } = this.props;
-    if (!collection || !fields) {
-      return null;
-    }
     return (
       <div style={style}>
-        {fields.filter(isVisible).map(field => widgetFor(field.get('name')))}
+        {map(filter(this.props.entry, ({ config }) => config.widget !== 'hidden'), field => {
+          const Tag = field.config.tagname || 'div';
+          return <Tag key={field.config.name} dangerouslySetInnerHTML={{ __html: field.preview }}/>
+        })}
       </div>
     );
   }
 }
 
 Preview.propTypes = {
-  collection: ImmutablePropTypes.map.isRequired,
-  entry: ImmutablePropTypes.map.isRequired,
-  fields: ImmutablePropTypes.list.isRequired,
-  getAsset: PropTypes.func.isRequired,
-  widgetFor: PropTypes.func.isRequired,
+  collection: PropTypes.object.isRequired,
+  entry: PropTypes.object.isRequired,
 };

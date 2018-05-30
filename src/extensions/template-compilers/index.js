@@ -14,11 +14,13 @@ const DEFAULT_COMPILER_NAME = 'handlebars';
 registerPreviewTemplateCompiler('handlebars', templateCompilerHandlebars);
 
 export const createTemplateCompiler = name => {
-  const {
-    template,
-    compilerConfig = {},
-    compilerName,
-  } = getPreviewTemplate(name);
+  const previewTemplate = getPreviewTemplate(name);
+
+  if (!previewTemplate) {
+    return;
+  }
+
+  const { template, compilerConfig = {}, compilerName } = previewTemplate;
 
   /**
    * Determining which compiler to use, in order of precedence:

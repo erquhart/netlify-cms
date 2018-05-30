@@ -163,14 +163,17 @@
         <dl>
           {{#entry.posts}}
             <dt>Posts on Frontpage</dt>
-            {{!-- <dd>{{{front_limit.preview}}}</dd> --}}
+            <dd>{{{front_limit.preview}}}</dd>
 
             <dt>Default Author</dt>
-            <dd>{{entry.author.value}}</dd>
+            <dd>{{author.value}}</dd>
 
             <dt>Default Thumbnail</dt>
             <dd>
-            {{#thumb}}<img src="{{thumb.data.src}}"/>{{/thumb}}
+              {{#thumb}}
+                <img src="{{thumb.data.src}}"/>
+              {{/thumb}}
+            </dd>
           {{/entry.posts}}
         </dl>
       </div>
@@ -214,7 +217,7 @@
     });
     */
 
-    CMS.registerPreviewTemplate("posts", postPreviewTemplate);
+    //CMS.registerPreviewTemplate("posts", postPreviewTemplate);
     CMS.registerPreviewTemplate("general", generalPreviewTemplate);
 /*
     CMS.registerPreviewTemplate("authors", AuthorsPreview);

@@ -92,6 +92,7 @@
 
   <script src='/cms.js'></script>
   <script>
+    /*
     // Original React template
     var PostPreview = createClass({
       render: function() {
@@ -110,24 +111,27 @@
         );
       }
     });
+    */
 
     // Handlebars equivalent
     var postPreviewTemplate = `
       <div>
         <div class="cover">
-          <h1>{{ title }}</h1>
+          <h1>{{ entry.title.value }}</h1>
           {{#image}}
-            <img src="{{ getAsset image }}"/>
+            <img src="{{ entry.image.data.src }}"/>
           {{/image}}
         </div>
         <p>
-          <small>Written {{ date }}</small>
+          <small>Written {{ entry.date.value }}</small>
         </p>
         <div class="text">
-          {{ widgetFor "body" }}
+          {{{ entry.body.preview }}}
         </div>
       </div>
     `;
+
+/*
 
     var GeneralPreview = createClass({
       render: function() {
@@ -151,26 +155,27 @@
         );
       }
     });
+  */
 
-    // Inactive concept, requires widgetFor path array support
     var generalPreviewTemplate = `
       <div>
-        <h1>{{ site_title }}</h1>
+        <h1>{{entry.site_title.value}}</h1>
         <dl>
-          {{#posts}}
+          {{#entry.posts}}
             <dt>Posts on Frontpage</dt>
-            <dd>{{widgetFor "front_limit"}}</dd>
+            {{!<dd>{{{front_limit.preview}}}</dd>}}
 
             <dt>Default Author</dt>
-            <dd>{{author}}</dd>
+            <dd>{{author.value}}</dd>
 
             <dt>Default Thumbnail</dt>
             <dd>
-              {{#thumb}}<img src="{{getAsset thumb}}"/>{{/thumb}}
+            {{#thumb}}<img src="{{thumb.data.src}}"/>{{/thumb}}
           {{/posts}}
         </dl>
       </div>
     `;
+/*
 
 
     var AuthorsPreview = createClass({
@@ -207,12 +212,16 @@
         ) : null;
       }
     });
+    */
 
     CMS.registerPreviewTemplate("posts", postPreviewTemplate);
-    CMS.registerPreviewTemplate("general", GeneralPreview);
+    CMS.registerPreviewTemplate("general", generalPreviewTemplate);
+/*
     CMS.registerPreviewTemplate("authors", AuthorsPreview);
+    */
     CMS.registerPreviewStyle("/example.css");
     // Pass the name of a registered control to reuse with a new widget preview.
+/*
     CMS.registerWidget("relationKitchenSinkPost", "relation", RelationKitchenSinkPostPreview);
     CMS.registerEditorComponent({
       id: "youtube",
@@ -233,6 +242,7 @@
         );
       }
     });
+  */
   </script>
 </body>
 </html>

@@ -35,23 +35,24 @@ export default class PreviewPane extends React.Component {
     if (authorField) this.inferedFields[authorField] = INFERABLE_FIELDS.author;
   }
 
-  getFieldPreview = field => {
+  getFieldPreview = (fieldConfig, path)  => {
     const { entry, fieldsMetaData, getAsset } = this.props;
-    console.log(entry.get('fields').toJS());
-    const value = entry.getIn(['data', field.get('name')]);
-    const widget = resolveWidget(field.get('widget'));
+    const value = entry.getIn(['data', path ? ...path : fieldConfig.get('name')]);
+    const widget = resolveWidget(fieldConfig.get('widget'));
     const data = widget.getData({ value, getAsset });
+
+    const preview = function() {
+      return ReactDOMServer.renderToStaticMarkup(
+        <PreviewHOC previewComponent={widget.preview} value={value} data={data}/>
+      );
+    }
 
     return {
       value,
       get data () {
         return data;
       },
-      get preview () {
-        return ReactDOMServer.renderToStaticMarkup(
-          <PreviewHOC previewComponent={widget.preview} value={value} data={data}/>
-        );
-      },
+      get preview,
     };
   };
 

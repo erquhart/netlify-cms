@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
+import { Map } from 'immutable';
 import EditorControl from './EditorControl';
 
 export default class ControlPane extends React.Component {
@@ -18,11 +19,23 @@ export default class ControlPane extends React.Component {
     });
   };
 
-  render() {
+  /**
+   * In case the `onChangeObject` function is frozen by a child widget implementation,
+   * e.g. when debounced, always get the latest object value instead of using
+   * `this.props.value` directly.
+   */
+  getObjectValue = () => this.props.value || Map();
+
+  /**
+   * Change handler for fields that are nested within another field.
+   */
+  onChangeObject = (fieldName, newValue, newMetadata) => {
+    const newObjectValue = this.getObjectValue().set(fieldName, newValue);
+    return this.props.onChange(newObjectValue, newMetadata);
+  };
+
+  renderWidget = (field, value) => {
     const {
-      collection,
-      fields,
-      entry,
       fieldsMetaData,
       fieldsErrors,
       mediaPaths,
@@ -32,34 +45,44 @@ export default class ControlPane extends React.Component {
       onAddAsset,
       onRemoveInsertedMedia,
       onValidate,
+      processControlRef,
     } = this.props;
 
-    if (!collection || !fields) {
-      return null;
-    }
+    const fields = field.get('fields');
+    const values = value || Map();
 
-    if (entry.size === 0 || entry.get('partial') === true) {
+    return (
+      <EditorControl
+        field={field}
+        value={value}
+        fieldsMetaData={fieldsMetaData}
+        fieldsErrors={fieldsErrors}
+        mediaPaths={mediaPaths}
+        getAsset={getAsset}
+        onChange={!fields ? onChange : this.onChangeObject}
+        onOpenMediaLibrary={onOpenMediaLibrary}
+        onAddAsset={onAddAsset}
+        onRemoveInsertedMedia={onRemoveInsertedMedia}
+        onValidate={onValidate}
+        processControlRef={this.processControlRef}
+      >
+        {!fields ? null : fields.map(f => this.renderWidget(f, values.get(f.get('name'))))}
+      </EditorControl>
+    );
+  };
+
+
+  render() {
+    const { collection, fields, entry } = this.props;
+
+    if (!collection || !fields || entry.size === 0 || entry.get('partial') === true) {
       return null;
     }
 
     return (
       <div className="nc-controlPane-root">
-        {fields.map((field, i) => field.get('widget') === 'hidden' ? null :
-          <EditorControl
-            key={i}
-            field={field}
-            value={entry.getIn(['data', field.get('name')])}
-            fieldsMetaData={fieldsMetaData}
-            fieldsErrors={fieldsErrors}
-            mediaPaths={mediaPaths}
-            getAsset={getAsset}
-            onChange={onChange}
-            onOpenMediaLibrary={onOpenMediaLibrary}
-            onAddAsset={onAddAsset}
-            onRemoveInsertedMedia={onRemoveInsertedMedia}
-            onValidate={onValidate}
-            processControlRef={this.processControlRef}
-          />
+        {fields.map(field => field.get('widget') === 'hidden' ? null :
+          this.renderWidget(field, entry.getIn(['data', field.get('name')]))
         )}
       </div>
     );

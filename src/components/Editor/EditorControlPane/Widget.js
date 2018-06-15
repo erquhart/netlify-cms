@@ -153,21 +153,6 @@ export default class Widget extends Component {
     return { error: false };
   };
 
-  /**
-   * In case the `onChangeObject` function is frozen by a child widget implementation,
-   * e.g. when debounced, always get the latest object value instead of using
-   * `this.props.value` directly.
-   */
-  getObjectValue = () => this.props.value || Map();
-
-  /**
-   * Change handler for fields that are nested within another field.
-   */
-  onChangeObject = (fieldName, newValue, newMetadata) => {
-    const newObjectValue = this.getObjectValue().set(fieldName, newValue);
-    return this.props.onChange(newObjectValue, newMetadata);
-  };
-
   render() {
     const {
       controlComponent,
@@ -189,7 +174,8 @@ export default class Widget extends Component {
       setInactiveStyle,
       hasActiveStyle,
       editorControl,
-      uniqueFieldId
+      uniqueFieldId,
+      children,
     } = this.props;
     return React.createElement(controlComponent, {
       field,
@@ -197,7 +183,6 @@ export default class Widget extends Component {
       mediaPaths,
       metadata,
       onChange,
-      onChangeObject: this.onChangeObject,
       onOpenMediaLibrary,
       onAddAsset,
       onRemoveInsertedMedia,
@@ -213,6 +198,6 @@ export default class Widget extends Component {
       setInactiveStyle,
       hasActiveStyle,
       editorControl,
-    });
+    }, children);
   }
 }

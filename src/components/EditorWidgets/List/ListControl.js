@@ -229,6 +229,7 @@ export default class ListControl extends Component {
       onAddAsset,
       onRemoveInsertedMedia,
       classNameWrapper,
+      children,
     } = this.props;
     const { itemsCollapsed } = this.state;
     const collapsed = itemsCollapsed.get(index);
@@ -254,7 +255,9 @@ export default class ListControl extends Component {
         onRemoveInsertedMedia={onRemoveInsertedMedia}
         classNameWrapper={`${ classNameWrapper } nc-listControl-objectControl`}
         forList
-      />
+      >
+        {children}
+      </ObjectControl>
     </SortableListItem>);
   };
 

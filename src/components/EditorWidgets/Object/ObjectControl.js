@@ -6,7 +6,6 @@ import { partial } from 'lodash';
 import c from 'classnames';
 import { resolveWidget } from 'Lib/registry';
 import { Icon } from 'UI';
-import EditorControl from 'Editor/EditorControlPane/EditorControl';
 
 const TopBar = ({ collapsed, onCollapseToggle }) => (
   <div className="nc-objectControl-topBar">
@@ -20,12 +19,6 @@ const TopBar = ({ collapsed, onCollapseToggle }) => (
 
 export default class ObjectControl extends Component {
   static propTypes = {
-    onChangeObject: PropTypes.func.isRequired,
-    onOpenMediaLibrary: PropTypes.func.isRequired,
-    mediaPaths: ImmutablePropTypes.map.isRequired,
-    onAddAsset: PropTypes.func.isRequired,
-    onRemoveInsertedMedia: PropTypes.func.isRequired,
-    getAsset: PropTypes.func.isRequired,
     value: PropTypes.oneOfType([
       PropTypes.node,
       PropTypes.object,
@@ -58,60 +51,20 @@ export default class ObjectControl extends Component {
     return true;
   }
 
-  controlFor(field, key) {
-    const {
-      onAddAsset,
-      onOpenMediaLibrary,
-      mediaPaths,
-      onRemoveInsertedMedia,
-      getAsset,
-      value,
-      onChangeObject,
-    } = this.props;
-
-    if (field.get('widget') === 'hidden') {
-      return null;
-    }
-    const widgetName = field.get('widget') || 'string';
-    const widget = resolveWidget(widgetName);
-    const fieldName = field.get('name');
-    const fieldValue = value && Map.isMap(value) ? value.get(fieldName) : value;
-
-    return (
-      <EditorControl
-        key={key}
-        field={field}
-        value={fieldValue}
-        mediaPaths={mediaPaths}
-        getAsset={getAsset}
-        onChange={onChangeObject}
-        onOpenMediaLibrary={onOpenMediaLibrary}
-        onAddAsset={onAddAsset}
-        onRemoveInsertedMedia={onRemoveInsertedMedia}
-      />
-    );
-  }
-
   handleCollapseToggle = () => {
     this.setState({ collapsed: !this.state.collapsed });
   }
 
   render() {
-    const { field, forID, classNameWrapper, forList } = this.props;
+    const { field, forID, classNameWrapper, forList, children } = this.props;
     const { collapsed } = this.state;
-    const multiFields = field.get('fields');
-    const singleField = field.get('field');
 
-    if (multiFields) {
-      return (
-        <div id={forID} className={c(classNameWrapper, 'nc-objectControl-root')}>
-          { forList ? null : <TopBar collapsed={collapsed} onCollapseToggle={this.handleCollapseToggle} /> }
-          { collapsed ? null : multiFields.map((f, idx) => this.controlFor(f, idx)) }
-        </div>
-      );
-    } else if (singleField) {
-      return this.controlFor(singleField);
-    }
+    return (
+      <div id={forID} className={c(classNameWrapper, 'nc-objectControl-root')}>
+        { forList ? null : <TopBar collapsed={collapsed} onCollapseToggle={this.handleCollapseToggle} /> }
+        { collapsed ? null : children }
+      </div>
+    );
 
     return <h3>No field(s) defined for this widget</h3>;
   }

@@ -23,6 +23,7 @@ export default class EditorControl extends React.Component {
       onRemoveInsertedMedia,
       onValidate,
       processControlRef,
+      children,
     } = this.props;
     const widgetName = field.get('widget');
     const widget = resolveWidget(widgetName);
@@ -78,7 +79,9 @@ export default class EditorControl extends React.Component {
           setInactiveStyle={() => this.setState({ styleActive: false })}
           ref={processControlRef && partial(processControlRef, fieldName)}
           editorControl={EditorControl}
-        />
+        >
+          {children}
+        </Widget>
       </div>
     );
   }

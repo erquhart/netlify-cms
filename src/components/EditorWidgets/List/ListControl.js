@@ -55,7 +55,6 @@ const valueTypes = {
 export default class ListControl extends Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
-    onChangeObject: PropTypes.func.isRequired,
     value: ImmutablePropTypes.list,
     field: PropTypes.object,
     forID: PropTypes.string,
@@ -156,9 +155,9 @@ export default class ListControl extends Component {
    */
   getObjectValue = idx => this.props.value.get(idx) || Map();
 
-  handleChangeFor(index) {
-    return (fieldName, newValue, newMetadata) => {
-      const { value, metadata, onChange, field } = this.props;
+  handleChangeFor(index, fieldName) {
+    return (newValue, newMetadata) => {
+      const { value, metadata, field, onChange } = this.props;
       const collectionName = field.get('name');
       const newObjectValue = this.getObjectValue(index).set(fieldName, newValue);
       const parsedValue = (this.valueType === valueTypes.SINGLE) ? newObjectValue.first() : newObjectValue;
@@ -247,7 +246,6 @@ export default class ListControl extends Component {
       <ObjectControl
         value={item}
         field={field}
-        onChangeObject={this.handleChangeFor(index)}
         getAsset={getAsset}
         onOpenMediaLibrary={onOpenMediaLibrary}
         mediaPaths={mediaPaths}
@@ -256,7 +254,10 @@ export default class ListControl extends Component {
         classNameWrapper={`${ classNameWrapper } nc-listControl-objectControl`}
         forList
       >
-        {children}
+        {React.Children.map(children, child => ({
+          ...child,
+          props: {...child.props, onChange: this.handleChangeFor(index, child.props.field.get('name'))},
+        }))}
       </ObjectControl>
     </SortableListItem>);
   };

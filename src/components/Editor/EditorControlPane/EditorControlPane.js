@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
-import { Map } from 'immutable';
+import { Map, List } from 'immutable';
 import EditorControl from './EditorControl';
 
 export default class ControlPane extends React.Component {
@@ -19,28 +19,12 @@ export default class ControlPane extends React.Component {
     });
   };
 
-  /**
-   * In case the `onChangeObject` function is frozen by a child widget implementation,
-   * e.g. when debounced, always get the latest object value instead of using
-   * `this.props.value` directly.
-   */
-  getObjectValue = () => this.props.value || Map();
-
-  /**
-   * Change handler for fields that are nested within another field.
-   */
-  onChangeObject = (fieldName, newValue, newMetadata) => {
-    const newObjectValue = this.getObjectValue().set(fieldName, newValue);
-    return this.props.onChange(newObjectValue, newMetadata);
-  };
-
-  renderWidget = (field, value) => {
+  renderWidget = (field, value, onChange) => {
     const {
       fieldsMetaData,
       fieldsErrors,
       mediaPaths,
       getAsset,
-      onChange,
       onOpenMediaLibrary,
       onAddAsset,
       onRemoveInsertedMedia,
@@ -49,7 +33,21 @@ export default class ControlPane extends React.Component {
     } = this.props;
 
     const fields = field.get('fields');
-    const values = value || Map();
+
+    /**
+     * In case the `onChangeObject` function is frozen by a child widget implementation,
+     * e.g. when debounced, always get the latest object value instead of using
+     * `this.props.value` directly.
+     */
+    const getObjectValue = () => value || Map();
+
+    /**
+     * Change handler for fields that are nested within another field.
+     */
+    const onChangeObject = (fieldName, newValue, newMetadata) => {
+      const newObjectValue = getObjectValue().set(fieldName, newValue);
+      return onChange(field.get('name'), newObjectValue, newMetadata);
+    };
 
     return (
       <EditorControl
@@ -59,21 +57,30 @@ export default class ControlPane extends React.Component {
         fieldsErrors={fieldsErrors}
         mediaPaths={mediaPaths}
         getAsset={getAsset}
-        onChange={!fields ? onChange : this.onChangeObject}
+        onChange={(newValue, newMetadata) => onChange(field.get('name'), newValue, newMetadata)}
         onOpenMediaLibrary={onOpenMediaLibrary}
         onAddAsset={onAddAsset}
         onRemoveInsertedMedia={onRemoveInsertedMedia}
         onValidate={onValidate}
         processControlRef={this.processControlRef}
       >
-        {!fields ? null : fields.map(f => this.renderWidget(f, values.get(f.get('name'))))}
+        {!fields ? null : this.renderChildren(fields, value, onChangeObject)}
       </EditorControl>
     );
   };
 
+  renderChildren = (fields, value, onChange) => {
+    if (List.isList(value)) {
+      return value.map(v => this.renderChildren(fields, v, onChange));
+    }
+    if (Map.isMap(value)) {
+      return fields.map(f => this.renderWidget(f, value.get(f.get('name')), onChange));
+    }
+    return fields.map(f => this.renderWidget(f, value, onChange));
+  };
 
   render() {
-    const { collection, fields, entry } = this.props;
+    const { collection, fields, entry, onChange } = this.props;
 
     if (!collection || !fields || entry.size === 0 || entry.get('partial') === true) {
       return null;
@@ -82,7 +89,7 @@ export default class ControlPane extends React.Component {
     return (
       <div className="nc-controlPane-root">
         {fields.map(field => field.get('widget') === 'hidden' ? null :
-          this.renderWidget(field, entry.getIn(['data', field.get('name')]))
+          this.renderWidget(field, entry.getIn(['data', field.get('name')]), onChange)
         )}
       </div>
     );

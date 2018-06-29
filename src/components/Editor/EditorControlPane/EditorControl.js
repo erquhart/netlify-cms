@@ -68,7 +68,7 @@ export default class EditorControl extends React.Component {
           value={value}
           mediaPaths={mediaPaths}
           metadata={metadata}
-          onChange={(newValue, newMetadata) => onChange(fieldName, newValue, newMetadata)}
+          onChange={onChange}
           onValidate={onValidate && partial(onValidate, fieldName)}
           onOpenMediaLibrary={onOpenMediaLibrary}
           onRemoveInsertedMedia={onRemoveInsertedMedia}

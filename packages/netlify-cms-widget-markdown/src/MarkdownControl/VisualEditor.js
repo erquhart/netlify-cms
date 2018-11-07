@@ -103,8 +103,8 @@ export default class Editor extends React.Component {
 
   handleMarkClick = (event, type) => {
     event.preventDefault();
-    this.editor.focus().toggleMark(type);
-    this.setState({ value: editor.value });
+    const { editor } = this;
+    editor.focus().toggleMark(type);
   };
 
   handleBlockClick = (event, type) => {
@@ -142,7 +142,6 @@ export default class Editor extends React.Component {
     */
 
     editor.focus();
-    this.setState({ value: editor.value });
   };
 
   hasLinks = () => {
@@ -168,8 +167,6 @@ export default class Editor extends React.Component {
 
       editor.wrapInline({ type: 'link', data: { url } }).moveToEnd();
     }
-
-    this.setState({ value: editor.value });
   };
 
   handlePluginAdd = pluginId => {
@@ -210,8 +207,6 @@ export default class Editor extends React.Component {
     }
 
     editor.focus();
-
-    this.setState({ value: editor.value });
   };
 
   handleToggle = () => {
@@ -270,9 +265,8 @@ export default class Editor extends React.Component {
               renderNode={renderNode}
               renderMark={renderMark}
               validateNode={validateNode}
-              plugins={plugins}
-              onChange={this.handleChange}
               onKeyDown={onKeyDown}
+              onChange={this.handleChange}
               onPaste={this.handlePaste}
               ref={this.processRef}
               spellCheck

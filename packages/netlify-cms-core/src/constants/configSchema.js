@@ -131,6 +131,25 @@ const getConfigSchema = () => ({
             },
             required: ['format'],
           },
+          folder: {
+            errorMessage: {
+              _: 'must have a field that is a valid entry identifier',
+            },
+            properties: {
+              fields: {
+                contains: {
+                  properties: {
+                    name: {
+                      anyOf: [
+                        { $data: '0#' },
+                        { enum: IDENTIFIER_FIELDS },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -168,7 +187,7 @@ class ConfigError extends Error {
  * the config that is passed in.
  */
 export function validateConfig(config) {
-  const ajv = new AJV({ allErrors: true });
+  const ajv = new AJV({ allErrors: true, jsonPointers: true, $data: true, verbose: true });
   ajvErrors(ajv);
 
   const valid = ajv.validate(getConfigSchema(), config);

@@ -313,15 +313,16 @@ describe('config', () => {
                 name: 'foo',
                 label: 'Foo',
                 file: 'bar',
-                fields: [{
-                  name: 'baz',
-                }],
+                fields: [
+                  {
+                    name: 'title',
+                  },
+                ],
               },
             ],
           }),
-        ).toThrowErrorMatchingInlineSnapshot(`"collections[0].fields cannot be empty"`);
+        ).toThrowErrorMatchingInlineSnapshot(`"\\"name\\" must be one of [title, path]"`);
       });
-
 
       describe('field', () => {
         it('should throw if defined with non-object', () => {

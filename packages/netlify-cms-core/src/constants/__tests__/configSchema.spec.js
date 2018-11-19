@@ -315,13 +315,61 @@ describe('config', () => {
                 file: 'bar',
                 fields: [
                   {
-                    name: 'title',
+                    name: 'baz',
                   },
                 ],
               },
             ],
           }),
         ).toThrowErrorMatchingInlineSnapshot(`"\\"name\\" must be one of [title, path]"`);
+      });
+
+      it('should throw if optional properties are of incorrect type', () => {
+        [
+          ['label', 'string', {}],
+          ['widget', 'string', {}],
+          ['required', 'boolean', {}],
+        ].forEach(([fieldName, type, invalidValue]) => {
+          expect(() =>
+            validateConfigWithout('collections', {
+              collections: [
+                {
+                  name: 'foo',
+                  label: 'Foo',
+                  file: 'bar',
+                  fields: [
+                    {
+                      name: 'title',
+                      [fieldName]: invalidValue,
+                    },
+                  ],
+                },
+              ],
+            }),
+          ).toThrow(new RegExp(`must be an? ${type}$`));
+        });
+      });
+
+      it('should not throw', () => {
+        expect(() =>
+          validateConfigWithout('collections', {
+            collections: [
+              {
+                name: 'foo',
+                label: 'Foo',
+                file: 'bar',
+                fields: [
+                  {
+                    name: 'title',
+                  },
+                  {
+                    name: 'test',
+                  },
+                ],
+              },
+            ],
+          }),
+        ).not.toThrow();
       });
 
       describe('field', () => {

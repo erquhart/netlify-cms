@@ -79,8 +79,10 @@ function errorMessage({ type, path, message, context, _object: value }) {
     }
     case 'array.base': return `${fromPath(path)} must be an array`;
     case 'array.includesRequiredKnowns':
+        /*
       if (context.knownMisses.includes('identifier_field') {
         return `
+        */
       return `${fromPath(path)} cannot be empty`;
     case 'object.missing':
       return `${fromPath(path)} must have ${compoundSubject(peers, true)} defined`;
@@ -91,7 +93,7 @@ function errorMessage({ type, path, message, context, _object: value }) {
 }
 
 export function validateConfig(config) {
-  const { error } = Joi.validate(config, schema, { allowUnknown: true });
+  const { error } = Joi.validate(config, schema, { allowUnknown: true, abortEarly: false });
   if (error) {
     console.log(JSON.stringify(error, null, 2));
     const message = error.details.map(errorMessage).join('/n');

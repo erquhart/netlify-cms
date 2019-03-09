@@ -14,7 +14,7 @@ const typeMap = {
   'heading-five': 'heading',
   'heading-six': 'heading',
   quote: 'blockquote',
-  code: 'code',
+  'code-block': 'codeBlock',
   'numbered-list': 'list',
   'bulleted-list': 'list',
   'list-item': 'listItem',
@@ -461,7 +461,7 @@ function convertNode(node, children, shortcodePlugins) {
      * stored in the "lang" data property. Here we transfer both the node
      * value and the "lang" data property to the new MDAST node.
      */
-    case 'code': {
+    case 'code-block': {
       const value = flatMap(node.nodes, child => {
         return flatMap(child.leaves, 'text');
       }).join('');

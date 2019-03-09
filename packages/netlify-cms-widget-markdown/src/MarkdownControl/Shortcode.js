@@ -50,7 +50,7 @@ export default class Shortcode extends React.Component {
     const { editor, node } = this.props;
     const shortcodeData = Map(node.data.get('shortcodeData')).set(fieldName, value);
     const data = node.data.set('shortcodeData', shortcodeData);
-    editor.change(c => c.setNodeByKey(node.key, { data }));
+    editor.setNodeByKey(node.key, { data });
   };
 
   handleCollapseToggle = () => {
@@ -59,9 +59,7 @@ export default class Shortcode extends React.Component {
 
   handleRemove = () => {
     const { editor, node } = this.props;
-    editor.change(change => {
-      change.removeNodeByKey(node.key).focus();
-    });
+    editor.removeNodeByKey(node.key).focus();
   };
 
   handleClick = event => {

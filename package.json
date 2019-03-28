@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "justatest": "test!",
     "bootstrap": "lerna bootstrap",
     "start": "run-s clean bootstrap build:esm develop",
     "develop": "lerna run develop --parallel",

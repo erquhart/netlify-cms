@@ -24,9 +24,27 @@
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
+import { times } from 'lodash';
 import rehype from 'rehype';
 import visit from 'unist-util-visit';
 import { oneLineTrim } from 'common-tags';
+
+[
+  'enter',
+  'backspace',
+  ['selectAll', 'selectall'],
+  ['up', 'upArrow'],
+  ['down', 'downArrow'],
+  ['left', 'leftArrow'],
+  ['right', 'rightArrow'],
+].forEach(key => {
+  const [ cmd, keyName ] = typeof key === 'object' ? key : [key, key];
+  Cypress.Commands.add(cmd, { prevSubject: true }, (subject, { shift, times: t = 1 } = {}) => {
+    times(t, () => {
+      cy.wrap(subject).type(`{${keyName}}${shift ? '{shift}' : ''}`);
+    });
+  });
+});
 
 Cypress.Commands.add('login', () => {
   cy.viewport(1200, 1200);
@@ -44,11 +62,14 @@ Cypress.Commands.add('clickToolbarButton', title => {
   return cy.focused();
 });
 
-Cypress.Commands.add('clickUnorderedListButton', () => {
-  return cy.clickToolbarButton('Bulleted List');
+Cypress.Commands.add('clickUnorderedListButton', ({ times: t = 1 } = {}) => {
+  times(t, () => {
+    cy.clickToolbarButton('Bulleted List');
+  });
+  return cy.focused();
 });
 
-Cypress.Commands.add('confirmEditorTree', expectedDomString => {
+Cypress.Commands.add('confirmEditorContent', expectedDomString => {
   return cy.get('[data-slate-editor]')
     .should(([element]) => {
       const actualDomString = toPlainTree(element.innerHTML);

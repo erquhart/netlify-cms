@@ -7,7 +7,7 @@ describe('Editorial Workflow', () => {
   const entry2 = { title: 'second title', body: 'second body' };
   const entry3 = { title: 'third title', body: 'third body' };
   const setting1 = { limit: 10, author: 'John Doe' };
-  const setting2 = { name: 'Andrew Wommack', description: 'A Gospel Teacher' };
+  const setting2 = { name: 'Jane Doe', description: 'description' };
   const notifications = {
     saved: 'Entry saved',
     published: 'Entry published',
@@ -165,16 +165,10 @@ describe('Editorial Workflow', () => {
       cy.contains('h2', fromColumnHeading)
         .parent()
         .contains('a', title)
-        .trigger('dragstart', {
-          dataTransfer: {},
-          force: true,
-        });
+        .drag();
       cy.contains('h2', toColumnHeading)
         .parent()
-        .trigger('drop', {
-          dataTransfer: {},
-          force: true,
-        });
+        .drop();
       assertNotification(notifications.updated);
     }
 

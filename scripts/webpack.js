@@ -20,7 +20,7 @@ const rules = () => ({
   }),
   css: () => ({
     test: /\.css$/,
-    include: [/(ol|redux-notifications|react-datetime)/],
+    include: [/(ol|redux-notifications|react-datetime|codemirror)/],
     use: ['to-string-loader', 'css-loader'],
   }),
   svg: () => ({

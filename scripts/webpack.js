@@ -1,10 +1,13 @@
 const path = require('path');
 const webpack = require('webpack');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
+//const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const { flatMap } = require('lodash');
 const { toGlobalName, externals } = require('./externals');
 const pkg = require(path.join(process.cwd(), 'package.json'));
 
 const isProduction = process.env.NODE_ENV === 'production';
+const moduleNameToPath = libName => `${path.resolve(__dirname, `../node_modules/${libName}`)}/`;
 
 const rules = () => ({
   js: () => ({
@@ -18,11 +21,18 @@ const rules = () => ({
       },
     },
   }),
-  css: () => ({
-    test: /\.css$/,
-    include: [/(ol|redux-notifications|react-datetime|codemirror)/],
-    use: ['to-string-loader', 'css-loader'],
-  }),
+  css: () => ([
+    {
+      test: /\.css$/,
+      include: ['monaco-editor'].map(moduleNameToPath),
+      use: ['style-loader', 'css-loader'],
+    },
+    {
+      test: /\.css$/,
+      include: ['ol', 'redux-notifications', 'react-datetime', 'codemirror'].map(moduleNameToPath),
+      use: ['to-string-loader', 'css-loader'],
+    },
+  ]),
   svg: () => ({
     test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
     exclude: [/node_modules/],
@@ -35,6 +45,11 @@ const plugins = () => {
     ignoreEsprima: () => new webpack.IgnorePlugin(/^esprima$/, /js-yaml/),
     ignoreMomentOptionalDeps: () => new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     friendlyErrors: () => new FriendlyErrorsWebpackPlugin(),
+    /*
+    monaco: () => new MonacoWebpackPlugin({
+      languages: ['json'],
+    }),
+    */
   };
 };
 
@@ -108,7 +123,7 @@ const baseConfig = ({ target = isProduction ? 'umd' : 'umddir' } = {}) => ({
   entry: './src/index.js',
   output: targetOutputs()[target],
   module: {
-    rules: Object.values(rules()).map(rule => rule()),
+    rules: flatMap(Object.values(rules()), rule => rule()),
   },
   plugins: Object.values(plugins()).map(plugin => plugin()),
   devtool: 'source-map',

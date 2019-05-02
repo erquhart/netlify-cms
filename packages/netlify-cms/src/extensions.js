@@ -16,3 +16,8 @@ CMS.registerMediaLibrary(cloudinary);
 CMS.registerWidget([
   NetlifyCmsWidgetCode.Widget(),
 ]);
+CMS.registerEditorComponent({
+  id: 'code-block',
+  widget: 'code',
+  type: 'code-block',
+});

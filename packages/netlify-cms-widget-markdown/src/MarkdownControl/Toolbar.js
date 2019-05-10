@@ -163,15 +163,6 @@ export default class Toolbar extends React.Component {
             disabled={disabled}
           />
           <ToolbarButton
-            type="code-block"
-            label="Code Block"
-            icon="code-block"
-            onClick={onBlockClick}
-            isActive={selectionHasBlock}
-            isHidden={this.isHidden('code-block')}
-            disabled={disabled}
-          />
-          <ToolbarButton
             type="bulleted-list"
             label="Bulleted List"
             icon="list-bulleted"
@@ -210,7 +201,7 @@ export default class Toolbar extends React.Component {
                     <DropdownItem
                       key={idx}
                       label={plugin.label}
-                      onClick={() => onSubmit(plugin.id)}
+                      onClick={() => onSubmit(plugin)}
                     />
                   ))}
             </Dropdown>

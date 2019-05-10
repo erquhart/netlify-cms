@@ -18,6 +18,7 @@ CMS.registerWidget([
 ]);
 CMS.registerEditorComponent({
   id: 'code-block',
+  label: 'Code Block',
   widget: 'code',
   type: 'code-block',
 });

@@ -38,7 +38,7 @@ Text with **bold** & _em_ elements
 `;
         expect(
           renderer.create(<MarkdownPreview value={markdownToHtml(value)} />).toJSON(),
-        ).toMatchSnapshot();
+        ).toMatchInlineSnapshot();
       });
     });
 
@@ -75,11 +75,11 @@ Text with **bold** & _em_ elements
     describe('Links', () => {
       it('should render links', () => {
         const value = `
-I get 10 times more traffic from [Google] [1] than from [Yahoo] [2] or [MSN] [3].
+I get 10 times more traffic from [Google] than from [Yahoo] or [MSN].
 
-  [1]: http://google.com/        "Google"
-  [2]: http://search.yahoo.com/  "Yahoo Search"
-  [3]: http://search.msn.com/    "MSN Search"
+  [Google]: http://google.com/        "Google"
+  [Yahoo]: http://search.yahoo.com/  "Yahoo Search"
+  [MSN]: http://search.msn.com/    "MSN Search"
 `;
         expect(
           renderer.create(<MarkdownPreview value={markdownToHtml(value)} />).toJSON(),

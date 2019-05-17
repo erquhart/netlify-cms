@@ -13,9 +13,7 @@ import 'codemirror/mode/css/css';
 
 CMS.registerMediaLibrary(uploadcare);
 CMS.registerMediaLibrary(cloudinary);
-CMS.registerWidget([
-  NetlifyCmsWidgetCode.Widget(),
-]);
+CMS.registerWidget([NetlifyCmsWidgetCode.Widget()]);
 CMS.registerEditorComponent({
   id: 'code-block',
   label: 'Code Block',
